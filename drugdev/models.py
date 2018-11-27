@@ -16,6 +16,6 @@ class ContactSchema(ma.ModelSchema):
     class Meta:
         model = Contact
         fields = ['uri', 'username', 'email', 'first_name', 'last_name']
-    uri = ma.Hyperlinks(ma.URLFor('contactcall_get', username='<username>'))
+    uri = ma.Hyperlinks(ma.URLFor('contactcall', username='<username>'))
 
 

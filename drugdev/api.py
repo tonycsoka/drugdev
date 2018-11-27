@@ -38,5 +38,5 @@ class ContactCall(Resource):
         return '', 204
 
 
-api.add_resource(ContactCall, '/api/contact/<string:username>', endpoint='contactcall_get')
+api.add_resource(ContactCall, '/api/contact/<string:username>')
 
