@@ -1,0 +1,1 @@
+from drugdev import app
