@@ -24,7 +24,7 @@ class ContactCall(Resource):
         if contact:
             return {'/api/contact/'+username: contacts_schema.dump(contact).data}
         else:
-            return '', 403
+            return {'/api/contact/'+username:  'unknown'}, 403
 
     def post(self, username):
         return f'post : {username}', 201
