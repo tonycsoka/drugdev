@@ -1,7 +1,6 @@
 from drugdev import app, db
 from drugdev.models import Contact, ContactSchema
 from flask_restful import Resource, Api
-from flask import jsonify
 
 api = Api(app=app)
 
@@ -39,5 +38,5 @@ class ContactCall(Resource):
         return '', 204
 
 
-api.add_resource(ContactCall, '/api/contact/<string:username>')
+api.add_resource(ContactCall, '/api/contact/<string:username>', endpoint='contactcall_get')
 
