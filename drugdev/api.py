@@ -33,7 +33,9 @@ class ContactCall(Resource):
         return f'put : {username}', 201
 
     def delete(self, username):
-        print(f'delete : {username}')
+        contact = Contact.query.filter_by(username=username)
+        contact.delete()
+        db.session.commit()
         return '', 204
 
 
