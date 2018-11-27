@@ -27,21 +27,15 @@ class ContactCall(Resource):
             return '', 403
 
     def post(self, username):
-        pass
+        return f'post : {username}', 201
 
     def put(self, username):
-        pass
+        return f'put : {username}', 201
+
+    def delete(self, username):
+        print(f'delete : {username}')
+        return '', 204
 
 
 api.add_resource(ContactCall, '/api/contact/<string:username>')
-
-
-class ContactDelete(Resource):
-    def get(self, username):
-        contact = Contact.query.filter_by(username=username)
-        contact.delete()
-        db.session.commit()
-
-
-api.add_resource(ContactDelete '/api/contact/delete/<string:username>')
 
