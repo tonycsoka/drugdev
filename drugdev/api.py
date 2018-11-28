@@ -20,8 +20,6 @@ class ContactCall(Resource):
         contact = Contact.query.filter_by(username=username).first()
         contacts_schema = ContactSchema()
 
-        print(username)
-
         if contact:
             return {'/api/contact/'+username: contacts_schema.dump(contact).data}
         else:
