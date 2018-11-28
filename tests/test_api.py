@@ -19,20 +19,24 @@ def test_get_contact_pass(client, add_user):
 
 
 def test_get_contact_fail(client, add_user):
+    # fred doesn't exist
     assert client.get('/api/contact/fred').status_code == 204
 
 
 def test_delete_contact(client, add_user):
     assert client.get('/api/contact/bob').status_code == 200
+    # delete bob
     assert client.delete('/api/contact/bob').status_code == 200
+    # check he's gone
     assert client.get('/api/contact/bob').status_code == 204
 
 
 def test_save_contact(client):
+    # add jim to the db
     data = {'email': 'jim@jim.com', 'last_name': 'greeve', 'first_name': 'jim'}
     client.post('/api/contact/jim', json=data)
-    rv = client.get('/api/contact/jim')
-    assert rv.status_code == 200
+    # check he's in there
+    assert client.get('/api/contact/jim').status_code == 200
 
 
 def test_save_contact_fail(client, add_user):
@@ -44,7 +48,11 @@ def test_save_contact_fail(client, add_user):
 
 
 def test_update_user(client, add_user):
+    rv = client.get('/api/contact/bob').get_json()
+    assert rv['/api/contact/bob']['last_name'] == 'monk'
+    # update bobs last name from monk to mink
     data = {'last_name': 'mink'}
-    client.put('/api/contact/bob', json=data)
+    assert client.put('/api/contact/bob', json=data).status_code == 201
+    # check its changed
     rv = client.get('/api/contact/bob').get_json()
     assert rv['/api/contact/bob']['last_name'] == 'mink'
