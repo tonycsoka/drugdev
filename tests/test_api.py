@@ -1,19 +1,24 @@
 import pytest
-from drugdev.models import Contact
+from drugdev.models import Contact, Email
 
 
 @pytest.fixture
 def add_user():
     from drugdev import db
-    bob = Contact(username='bob', email='bob@bob.com', first_name='bob', last_name='monk')
+    em1 = Email(email='bob@bob.com')
+    bob = Contact(username='bob', first_name='bob', surname='monk', emails=[em1])
     db.session.add(bob)
+    db.session.add(em1)
     db.session.commit()
+
 
 @pytest.fixture
 def add_user_jim():
     from drugdev import db
-    jim = Contact(username='jim', email='jim@jim.com', first_name='jim', last_name='job')
+    em1 = Email(email='jim@jim.com')
+    jim = Contact(username='jim', first_name='jim', surname='job', emails=[em1])
     db.session.add(jim)
+    db.session.add(em1)
     db.session.commit()
 
 
@@ -40,14 +45,14 @@ def test_delete_contact(client, add_user):
 
 def test_save_contact(client):
     # add jim to the db
-    data = {'email': 'jim@jim.com', 'last_name': 'greeve', 'first_name': 'jim'}
+    data = {'email': 'jim@jim.com', 'surname': 'greeve', 'first_name': 'jim'}
     client.post('/api/contact/jim', json=data)
     # check he's in there
     assert client.get('/api/contact/jim').status_code == 200
 
 
 def test_save_contact_fail(client, add_user):
-    data = {'email': 'jim@jim.com', 'last_name': 'greeve', 'first_name': 'jim'}
+    data = {'email': 'jim@jim.com', 'surname': 'greeve', 'first_name': 'jim'}
     # Insert of new user will fail, as we already have bob as a username
     assert client.post('/api/contact/bob', json=data).status_code == 405
     # Make sure old bob is still there
@@ -56,13 +61,13 @@ def test_save_contact_fail(client, add_user):
 
 def test_update_user(client, add_user):
     rv = client.get('/api/contact/bob').get_json()
-    assert rv['/api/contact/bob']['last_name'] == 'monk'
+    assert rv['/api/contact/bob']['surname'] == 'monk'
     # update bobs last name from monk to mink
-    data = {'last_name': 'mink'}
+    data = {'surname': 'mink'}
     assert client.put('/api/contact/bob', json=data).status_code == 201
     # check its changed
     rv = client.get('/api/contact/bob').get_json()
-    assert rv['/api/contact/bob']['last_name'] == 'mink'
+    assert rv['/api/contact/bob']['surname'] == 'mink'
 
 
 def test_update_user_fail(client, add_user, add_user_jim):
@@ -73,3 +78,10 @@ def test_update_user_fail(client, add_user, add_user_jim):
     assert client.get('/api/contact/bob').status_code == 200
     assert client.get('/api/contact/jim').status_code == 200
 
+
+def test_get_contact_email(client, add_user):
+    assert client.get('/api/contact/bob@bob.com').status_code == 200
+
+
+def test_get_contact_email_fail(client, add_user):
+    assert client.get('/api/contact/jim@bob.com').status_code == 204
