@@ -9,6 +9,13 @@ def add_user():
     db.session.add(bob)
     db.session.commit()
 
+@pytest.fixture
+def add_user_jim():
+    from drugdev import db
+    jim = Contact(username='jim', email='jim@jim.com', first_name='jim', last_name='job')
+    db.session.add(jim)
+    db.session.commit()
+
 
 def test_get_contacts(client):
     assert client.get('/api/contacts').status_code == 200
@@ -56,3 +63,13 @@ def test_update_user(client, add_user):
     # check its changed
     rv = client.get('/api/contact/bob').get_json()
     assert rv['/api/contact/bob']['last_name'] == 'mink'
+
+
+def test_update_user_fail(client, add_user, add_user_jim):
+    # update jims username to bob will fail
+    data = {'username': 'bob'}
+    assert client.put('/api/contact/jim', json=data).status_code == 405
+    # check bob and jim are still there
+    assert client.get('/api/contact/bob').status_code == 200
+    assert client.get('/api/contact/jim').status_code == 200
+

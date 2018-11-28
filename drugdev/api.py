@@ -51,6 +51,7 @@ class ContactCall(Resource):
         return f'post : {username}', 201
 
     def put(self, username):
+        from sqlalchemy.exc import IntegrityError
         parser = reqparse.RequestParser()
         parser.add_argument('email')
         parser.add_argument('last_name')
@@ -70,7 +71,13 @@ class ContactCall(Resource):
         if args['first_name']:
             contact.first_name = args['first_name']
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError as ierror:
+            db.session.rollback()
+            return {'/api/contact/'+username: 'already exists'}, 405
+        finally:
+            db.session.commit()
 
         return f'put : {username}', 201
 
