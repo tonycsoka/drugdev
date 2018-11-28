@@ -1,7 +1,6 @@
 from drugdev import app, db
 from drugdev.models import Contact, ContactSchema
-from flask_restful import Resource, Api
-from flask import jsonify
+from flask_restful import Resource, Api, reqparse
 
 api = Api(app=app)
 
@@ -24,24 +23,70 @@ class ContactCall(Resource):
         if contact:
             return {'/api/contact/'+username: contacts_schema.dump(contact).data}
         else:
-            return '', 403
+            return {'/api/contact/'+username:  'unknown'}, 204
 
     def post(self, username):
-        pass
+        from sqlalchemy.exc import IntegrityError
+        parser = reqparse.RequestParser()
+        parser.add_argument('email')
+        parser.add_argument('last_name')
+        parser.add_argument('first_name')
+
+        args = parser.parse_args()
+
+        contact = Contact(username=username,
+                          email=args['email'],
+                          first_name=args['first_name'],
+                          last_name=args['last_name'])
+
+        try:
+            db.session.add(contact)
+            db.session.commit()
+        except IntegrityError as ierror:
+            db.session.rollback()
+            return {'/api/contact/'+username: 'already exists'}, 405
+        finally:
+            db.session.commit()
+
+        return f'post : {username}', 201
 
     def put(self, username):
-        pass
+        from sqlalchemy.exc import IntegrityError
+        parser = reqparse.RequestParser()
+        parser.add_argument('email')
+        parser.add_argument('last_name')
+        parser.add_argument('first_name')
+        parser.add_argument('username')
 
+        contact = Contact.query.filter_by(username=username).first()
 
-api.add_resource(ContactCall, '/api/contact/<string:username>')
+        args = parser.parse_args()
 
+        if args['username']:
+            contact.username = args['username']
+        if args['email']:
+            contact.email = args['email']
+        if args['last_name']:
+            contact.last_name = args['last_name']
+        if args['first_name']:
+            contact.first_name = args['first_name']
 
-class ContactDelete(Resource):
-    def get(self, username):
+        try:
+            db.session.commit()
+        except IntegrityError as ierror:
+            db.session.rollback()
+            return {'/api/contact/'+username: 'already exists'}, 405
+        finally:
+            db.session.commit()
+
+        return f'put : {username}', 201
+
+    def delete(self, username):
         contact = Contact.query.filter_by(username=username)
         contact.delete()
         db.session.commit()
+        return '', 200
 
 
-api.add_resource(ContactDelete '/api/contact/delete/<string:username>')
+api.add_resource(ContactCall, '/api/contact/<string:username>')
 
