@@ -21,3 +21,9 @@ data format for post/put is
 To add a second email, issue a put
 
 {'email': 'jim-2@jim.com'}
+
+**Extra Notes**
+
+I initially ued Python 3.7, but Celery has issues with this due to using async as a module name.  I also ran into issues 
+with using the latest redis library (3.0.1), and have to revert back to 2.10.6.  This is reflected in the requirements 
+file
