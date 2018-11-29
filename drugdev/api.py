@@ -73,7 +73,9 @@ class ContactCall(Resource):
         if args['username']:
             contact.username = args['username']
         if args['email']:
-            contact.email = args['email']
+            email = Email(email=args['email'])
+            contact.emails.append(email)
+            db.session.add(email)
         if args['surname']:
             contact.surname = args['surname']
         if args['first_name']:
@@ -90,10 +92,12 @@ class ContactCall(Resource):
         return f'put : {username}', 201
 
     def delete(self, username):
-        contact = Contact.query.filter_by(username=username)
-        contact.delete()
-        db.session.commit()
-        return '', 200
+        contact = Contact.query.filter_by(username=username).first()
+        if contact:
+            db.session.delete(contact)
+            db.session.commit()
+            return '', 200
+        return '', 204
 
 
 api.add_resource(ContactCall, '/api/contact/<string:username>')

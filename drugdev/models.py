@@ -6,7 +6,7 @@ class Contact(db.Model):
     username = db.Column(db.String(100), index=True, unique=True)  # Assume unique usernames
     first_name = db.Column(db.String(50))
     surname = db.Column(db.String(50))
-    emails = db.relationship('Email', backref='contact', lazy=True)
+    emails = db.relationship('Email', backref='contact', lazy=True, cascade="all,delete")
 
     def __repr__(self):
         return f'<User {self.username}>'

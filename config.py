@@ -7,6 +7,10 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
     TESTING = False
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_TRACK_STARTED = True
+    CELERY_SEND_EVENTS = True
 
 
 class ProductionConfig(Config):
