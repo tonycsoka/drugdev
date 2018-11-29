@@ -1,4 +1,4 @@
-Notes
+**Notes**
 
 Tests are run with pytest
 
